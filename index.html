@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Monitoreo de Luces</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #1f1f1f;
+      padding: 20px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .imagen {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px auto;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .imagen img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    input[type="file"] {
+      margin-top: 10px;
+    }
+
+    .contenedor-columnas {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .monitoreo, .registro {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      flex: 1 1 300px;
+      max-width: 500px;
+    }
+
+    .mon-luz {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #2a2a2a;
+      margin-bottom: 10px;
+    }
+
+    .estado-on {
+      color: yellow;
+      font-weight: bold;
+    }
+
+    .estado-off {
+      color: gray;
+    }
+
+    .registro p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
+    .alarmas {
+      background: #1e1e1e;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px auto;
+      max-width: 1000px;
+    }
+
+    .alarmas p {
+      color: red;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .ciudad {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      padding: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .calle {
+      background: #222;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .nombre-calle {
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #a2cfff;
+    }
+
+    .farol {
+      width: 60px;
+      height: 60px;
+      margin: auto;
+      border-radius: 50%;
+      background-color: #444;
+      cursor: pointer;
+    }
+
+    .encendido {
+      background-color: yellow;
+      box-shadow: 0 0 20px yellow;
+    }
+
+    .botones {
+      text-align: center;
+      margin: 20px;
+    }
+
+    .botones button {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  MONITOREO DE LUCES
+</header>
+
+<!-- IMAGEN -->
+<div class="imagen">
+  <h3>🖼️ Imagen cargada</h3>
+  <input type="file" id="inputImagen" accept="image/*" onchange="mostrarImagen()">
+  <img id="imagenMostrada" src="" alt="">
+</div>
+
+<!-- BOTONES -->
+<div class="botones">
+  <button onclick="encenderTodas()">Encender Todas</button>
+  <button onclick="apagarTodas()">Apagar Todas</button>
+  <button onclick="simularMonitoreo()">Simular Monitoreo</button>
+</div>
+
+<!-- FAROLES VISUALES -->
+<div class="ciudad">
+  <div class="calle">
+    <div class="nombre-calle">Luminaria 1</div>
+    <div class="farol" id="luz1" onclick="toggleLuz('luz1')"></div>
+  </div>
+  <div class="calle">
+    <div class="nombre-calle">Luminaria 2</div>
+    <div class="farol" id="luz2" onclick="toggleLuz('luz2')"></div>
+  </div>
+  <div class="calle">
+    <div class="nombre-calle">Luminaria 3</div>
+    <div class="farol" id="luz3" onclick="toggleLuz('luz3')"></div>
+  </div>
+  <div class="calle">
+    <div class="nombre-calle">Luminaria 4</div>
+    <div class="farol" id="luz4" onclick="toggleLuz('luz4')"></div>
+  </div>
+</div>
+
+<!-- MONITOREO Y REGISTRO -->
+<div class="contenedor-columnas">
+  <!-- Monitoreo -->
+  <div class="monitoreo" id="monitoreo">
+    <h3>📊 Estado de cada luz</h3>
+    <div class="mon-luz" id="estado_luz1">Luminaria 1: <span class="estado">ON</span></div>
+    <div class="mon-luz" id="estado_luz2">Luminaria 2: <span class="estado">ON</span></div>
+    <div class="mon-luz" id="estado_luz3">Luminaria 3: <span class="estado">ON</span></div>
+    <div class="mon-luz" id="estado_luz4">Luminaria 4: <span class="estado">ON</span></div>
+  </div>
+
+  <!-- Registro -->
+  <div class="registro" id="registro">
+    <h3>📝 Registro de eventos</h3>
+  </div>
+</div>
+
+<!-- ALARMAS -->
+<div class="alarmas" id="alarmas">
+  <h3>🚨 Alarmas activadas</h3>
+</div>
+
+<script>
+  const luces = {
+    luz1: { estado: true, apagadoDesde: null, nombre: 'Luminaria 1' },
+    luz2: { estado: true, apagadoDesde: null, nombre: 'Luminaria 2' },
+    luz3: { estado: true, apagadoDesde: null, nombre: 'Luminaria 3' },
+    luz4: { estado: true, apagadoDesde: null, nombre: 'Luminaria 4' },
+  };
+
+  function toggleLuz(id) {
+    const luz = document.getElementById(id);
+    const data = luces[id];
+    data.estado = !data.estado;
+
+    if (data.estado) {
+      luz.classList.add('encendido');
+      data.apagadoDesde = null;
+      logEvento(`Luz ${data.nombre} encendida.`);
+    } else {
+      luz.classList.remove('encendido');
+      data.apagadoDesde = Date.now();
+      logEvento(`Luz ${data.nombre} apagada.`);
+    }
+
+    actualizarMonitoreo(id);
+  }
+
+  function encenderTodas() {
+    for (const id in luces) {
+      const luz = document.getElementById(id);
+      luz.classList.add('encendido');
+      luces[id].estado = true;
+      luces[id].apagadoDesde = null;
+      actualizarMonitoreo(id);
+    }
+    logEvento("Todas las luces fueron encendidas.");
+  }
+
+  function apagarTodas() {
+    for (const id in luces) {
+      const luz = document.getElementById(id);
+      luz.classList.remove('encendido');
+      luces[id].estado = false;
+      luces[id].apagadoDesde = Date.now();
+      actualizarMonitoreo(id);
+    }
+    logEvento("Todas las luces fueron apagadas.");
+  }
+
+  function simularMonitoreo() {
+    for (const id in luces) {
+      const encender = Math.random() < 0.5;
+      const luz = document.getElementById(id);
+      luces[id].estado = encender;
+
+      if (encender) {
+        luz.classList.add('encendido');
+        luces[id].apagadoDesde = null;
+        logEvento(`Estado: luz ${luces[id].nombre} encendida.`);
+      } else {
+        luz.classList.remove('encendido');
+        luces[id].apagadoDesde = Date.now();
+        logEvento(`Estado: luz ${luces[id].nombre} apagada.`);
+      }
+
+      actualizarMonitoreo(id);
+    }
+  }
+
+  function logEvento(texto) {
+    const registro = document.getElementById('registro');
+    const p = document.createElement('p');
+    p.textContent = `[${new Date().toLocaleTimeString()}] ${texto}`;
+    registro.appendChild(p);
+    registro.scrollTop = registro.scrollHeight;
+  }
+
+  function logAlarma(texto) {
+    const panelAlarma = document.getElementById('alarmas');
+    const p = document.createElement('p');
+    p.textContent = `[${new Date().toLocaleTimeString()}] ${texto}`;
+    panelAlarma.appendChild(p);
+    panelAlarma.scrollTop = panelAlarma.scrollHeight;
+  }
+
+  function actualizarMonitoreo(id) {
+    const estado = luces[id].estado ? 'ON' : 'OFF';
+    const texto = `${luces[id].nombre}: <span class="estado ${luces[id].estado ? 'estado-on' : 'estado-off'}">${estado}</span>`;
+    document.getElementById(`estado_${id}`).innerHTML = texto;
+  }
+
+  function verificarAlarmas() {
+    const ahora = Date.now();
+    for (const id in luces) {
+      const data = luces[id];
+      if (!data.estado && data.apagadoDesde) {
+        const segundos = (ahora - data.apagadoDesde) / 1000;
+        if (segundos > 60) {
+          logAlarma(`⚠️ Alarma: la luz de ${data.nombre} lleva más de 1 minuto apagada.`);
+          data.apagadoDesde = null; // evitar múltiples alertas
+        }
+      }
+    }
+  }
+
+  function mostrarImagen() {
+    const input = document.getElementById('inputImagen');
+    const img = document.getElementById('imagenMostrada');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  setInterval(verificarAlarmas, 10000);
+
+  // Inicializar monitoreo visual
+  for (const id in luces) {
+    actualizarMonitoreo(id);
+  }
+</script>
+
+</body>
+</html>
