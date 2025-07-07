@@ -2,280 +2,663 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Monitoreo de Luces</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Monitoreo de Luces</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #121212;
-      color: white;
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #121212, #1a1a2e);
+      color: #ffffff;
+      min-height: 100vh;
+      padding-bottom: 30px;
+    }
+
     header {
-      background-color: #1f1f1f;
-      padding: 20px;
+      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+      padding: 25px;
       text-align: center;
-      font-size: 28px;
-      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 100;
     }
 
-    .imagen {
-      background: #1e1e1e;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 20px auto;
-      max-width: 600px;
+    header h1 {
+      font-size: 2.8rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: linear-gradient(to right, #f8ff00, #ff9900);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .imagen-container {
+      background: rgba(30, 30, 46, 0.7);
+      border-radius: 15px;
+      padding: 25px;
+      margin: 25px auto;
+      max-width: 800px;
       text-align: center;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      border: 1px solid #444;
+      transition: all 0.4s ease;
     }
 
-    .imagen img {
+    .imagen-container.minimized {
+      max-width: 500px;
+      padding: 15px;
+    }
+
+    .imagen-container h3 {
+      font-size: 1.6rem;
+      margin-bottom: 15px;
+      color: #a2cfff;
+      transition: all 0.3s ease;
+    }
+
+    .imagen-container.minimized h3 {
+      display: none;
+    }
+
+    .file-input-container {
+      margin: 15px 0;
+      transition: all 0.3s ease;
+    }
+
+    .imagen-container.minimized .file-input-container {
+      display: none;
+    }
+
+    .custom-file-input {
+      display: inline-block;
+      padding: 12px 25px;
+      background: linear-gradient(to right, #0d6efd, #0b5ed7);
+      color: white;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .custom-file-input:hover {
+      background: linear-gradient(to right, #0b5ed7, #0a4dbd);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    #inputImagen {
+      display: none;
+    }
+
+    #imagenMostrada {
       max-width: 100%;
       border-radius: 10px;
-      margin-top: 10px;
+      margin: 20px auto 10px;
+      display: block;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+      border: 1px solid #555;
+      transition: all 0.3s ease;
     }
 
-    input[type="file"] {
+    .change-image-btn {
+      display: none;
+      background: linear-gradient(to right, #0d6efd, #0b5ed7);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 50px;
       margin-top: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .change-image-btn:hover {
+      background: linear-gradient(to right, #0b5ed7, #0a4dbd);
+      transform: translateY(-2px);
+    }
+
+    .imagen-container.minimized .change-image-btn {
+      display: inline-block;
+    }
+
+    .botones {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 30px 0;
+    }
+
+    .botones button {
+      background: linear-gradient(to right, #0d6efd, #0b5ed7);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 1.05rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      min-width: 200px;
+    }
+
+    .botones button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .ciudad {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      padding: 25px;
+      max-width: 1200px;
+      margin: 0 auto 30px;
+    }
+
+    .calle {
+      background: rgba(34, 34, 50, 0.8);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid #444;
+      transition: all 0.3s ease;
+    }
+
+    .calle:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      background: rgba(40, 40, 60, 0.9);
+    }
+
+    .nombre-calle {
+      margin-bottom: 15px;
+      font-weight: bold;
+      font-size: 1.3rem;
+      color: #a2cfff;
+    }
+
+    .farol {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto;
+      border-radius: 50%;
+      background-color: #444;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      position: relative;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .encendido {
+      background: radial-gradient(circle, #ffff00, #ffd700);
+      box-shadow: 0 0 30px rgba(255, 255, 0, 0.7);
     }
 
     .contenedor-columnas {
       display: flex;
       flex-wrap: wrap;
       justify-content: space-around;
-      gap: 20px;
+      gap: 30px;
       padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .monitoreo, .registro {
-      background: #1e1e1e;
-      padding: 15px;
-      border-radius: 10px;
-      flex: 1 1 300px;
-      max-width: 500px;
+      background: rgba(30, 30, 46, 0.8);
+      padding: 25px;
+      border-radius: 15px;
+      flex: 1 1 400px;
+      max-width: 550px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid #444;
+    }
+
+    .monitoreo h3, .registro h3, .alarmas h3 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+      color: #a2cfff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .mon-luz {
       display: flex;
       justify-content: space-between;
-      padding: 8px 12px;
+      padding: 12px 18px;
       border: 1px solid #444;
-      border-radius: 6px;
-      background: #2a2a2a;
-      margin-bottom: 10px;
+      border-radius: 10px;
+      background: rgba(42, 42, 60, 0.8);
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .mon-luz:hover {
+      background: rgba(50, 50, 70, 0.9);
+      transform: translateX(5px);
     }
 
     .estado-on {
-      color: yellow;
+      color: #ffd700;
       font-weight: bold;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
     }
 
     .estado-off {
-      color: gray;
+      color: #aaa;
+    }
+
+    .registro-content {
+      height: 250px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .registro-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .registro-content::-webkit-scrollbar-track {
+      background: #2a2a3a;
+      border-radius: 4px;
+    }
+
+    .registro-content::-webkit-scrollbar-thumb {
+      background: #0d6efd;
+      border-radius: 4px;
     }
 
     .registro p {
-      font-size: 14px;
-      margin: 5px 0;
+      font-size: 1rem;
+      margin: 10px 0;
+      padding: 8px 12px;
+      background: rgba(42, 42, 60, 0.5);
+      border-radius: 6px;
+      border-left: 3px solid #0d6efd;
     }
 
     .alarmas {
-      background: #1e1e1e;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 20px auto;
+      background: rgba(30, 30, 46, 0.8);
+      padding: 25px;
+      border-radius: 15px;
+      margin: 30px auto;
       max-width: 1000px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid #444;
     }
 
     .alarmas p {
-      color: red;
+      color: #ff6b6b;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 1.1rem;
+      padding: 10px 15px;
+      background: rgba(255, 107, 107, 0.1);
+      border-radius: 8px;
+      margin: 12px 0;
+      border-left: 3px solid #ff6b6b;
     }
 
-    .ciudad {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-      padding: 20px;
-      max-width: 1000px;
-      margin: auto;
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+      font-size: 0.9rem;
+      color: #aaa;
     }
 
-    .calle {
-      background: #222;
-      border-radius: 10px;
-      padding: 10px;
+    .simulacion-control {
+      background: rgba(30, 30, 46, 0.8);
+      padding: 15px;
+      border-radius: 15px;
+      margin: 20px auto;
+      max-width: 800px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      border: 1px solid #444;
       text-align: center;
     }
 
-    .nombre-calle {
+    .simulacion-control label {
+      display: block;
       margin-bottom: 10px;
-      font-weight: bold;
+      font-size: 1.1rem;
       color: #a2cfff;
     }
 
-    .farol {
-      width: 60px;
-      height: 60px;
-      margin: auto;
-      border-radius: 50%;
-      background-color: #444;
-      cursor: pointer;
-    }
-
-    .encendido {
-      background-color: yellow;
-      box-shadow: 0 0 20px yellow;
-    }
-
-    .botones {
+    .simulacion-control input {
+      width: 100px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #444;
+      background: #2a2a3a;
+      color: white;
       text-align: center;
-      margin: 20px;
+      margin-right: 10px;
     }
 
-    .botones button {
-      background-color: #0d6efd;
+    .simulacion-control button {
+      background: linear-gradient(to right, #0d6efd, #0b5ed7);
       color: white;
       border: none;
-      padding: 10px 20px;
-      margin: 10px;
-      border-radius: 5px;
+      padding: 8px 16px;
+      border-radius: 50px;
       cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .simulacion-control button:hover {
+      background: linear-gradient(to right, #0b5ed7, #0a4dbd);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .ciudad {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      header h1 {
+        font-size: 2rem;
+      }
+      
+      .botones button {
+        min-width: 160px;
+        padding: 10px 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .ciudad {
+        grid-template-columns: 1fr;
+      }
+      
+      .botones {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .botones button {
+        width: 100%;
+        max-width: 300px;
+      }
     }
   </style>
 </head>
 <body>
 
 <header>
-  MONITOREO DE LUCES
+  <h1>MONITOREO DE LUCES INTELIGENTE</h1>
 </header>
 
-<!-- IMAGEN -->
-<div class="imagen">
-  <h3>🖼️ Imagen cargada</h3>
-  <input type="file" id="inputImagen" accept="image/*" onchange="mostrarImagen()">
-  <img id="imagenMostrada" src="" alt="">
+<div class="panel-container">
+  <!-- Contenedor de imagen -->
+  <div class="imagen-container" id="imagenContainer">
+    <h3 id="tituloImagen">🖼️ CARGAR IMAGEN DEL SISTEMA</h3>
+    <div class="file-input-container">
+      <label for="inputImagen" class="custom-file-input">Seleccionar imagen</label>
+      <input type="file" id="inputImagen" accept="image/*">
+    </div>
+    <img id="imagenMostrada" src="" alt="Imagen del sistema de luces">
+    <button class="change-image-btn" id="changeImageBtn">Cambiar Imagen</button>
+  </div>
+
+  <!-- Botones de control -->
+  <div class="botones">
+    <button onclick="encenderTodas()">ENCENDER TODAS</button>
+    <button onclick="apagarTodas()">APAGAR TODAS</button>
+    <button onclick="simularMonitoreo()">SIMULAR MONITOREO</button>
+    <button onclick="detenerSimulacion()">DETENER SIMULACIÓN</button>
+  </div>
+
+  <!-- Control de tiempo de simulación -->
+  <div class="simulacion-control">
+    <label for="tiempoSimulacion">Intervalo de simulación (segundos):</label>
+    <input type="number" id="tiempoSimulacion" min="1" max="60" value="3">
+    <button onclick="actualizarTiempoSimulacion()">Actualizar</button>
+  </div>
+
+  <!-- Visualización de faroles -->
+  <div class="ciudad" id="ciudad">
+    <!-- Las luces se generarán dinámicamente con JavaScript -->
+  </div>
+
+  <!-- Monitoreo y registro -->
+  <div class="contenedor-columnas">
+    <!-- Monitoreo -->
+    <div class="monitoreo">
+      <h3>📊 ESTADO DE CADA LUZ</h3>
+      <div id="estados-luces"></div>
+    </div>
+
+    <!-- Registro -->
+    <div class="registro">
+      <h3>📝 REGISTRO DE EVENTOS</h3>
+      <div class="registro-content" id="registro"></div>
+    </div>
+  </div>
+
+  <!-- Alarmas -->
+  <div class="alarmas">
+    <h3>🚨 ALARMAS ACTIVADAS</h3>
+    <div id="alarmas-content"></div>
+  </div>
 </div>
 
-<!-- BOTONES -->
-<div class="botones">
-  <button onclick="encenderTodas()">Encender Todas</button>
-  <button onclick="apagarTodas()">Apagar Todas</button>
-  <button onclick="simularMonitoreo()">Simular Monitoreo</button>
-</div>
-
-<!-- FAROLES VISUALES -->
-<div class="ciudad">
-  <div class="calle">
-    <div class="nombre-calle">Luminaria 1</div>
-    <div class="farol" id="luz1" onclick="toggleLuz('luz1')"></div>
-  </div>
-  <div class="calle">
-    <div class="nombre-calle">Luminaria 2</div>
-    <div class="farol" id="luz2" onclick="toggleLuz('luz2')"></div>
-  </div>
-  <div class="calle">
-    <div class="nombre-calle">Luminaria 3</div>
-    <div class="farol" id="luz3" onclick="toggleLuz('luz3')"></div>
-  </div>
-  <div class="calle">
-    <div class="nombre-calle">Luminaria 4</div>
-    <div class="farol" id="luz4" onclick="toggleLuz('luz4')"></div>
-  </div>
-</div>
-
-<!-- MONITOREO Y REGISTRO -->
-<div class="contenedor-columnas">
-  <!-- Monitoreo -->
-  <div class="monitoreo" id="monitoreo">
-    <h3>📊 Estado de cada luz</h3>
-    <div class="mon-luz" id="estado_luz1">Luminaria 1: <span class="estado">ON</span></div>
-    <div class="mon-luz" id="estado_luz2">Luminaria 2: <span class="estado">ON</span></div>
-    <div class="mon-luz" id="estado_luz3">Luminaria 3: <span class="estado">ON</span></div>
-    <div class="mon-luz" id="estado_luz4">Luminaria 4: <span class="estado">ON</span></div>
-  </div>
-
-  <!-- Registro -->
-  <div class="registro" id="registro">
-    <h3>📝 Registro de eventos</h3>
-  </div>
-</div>
-
-<!-- ALARMAS -->
-<div class="alarmas" id="alarmas">
-  <h3>🚨 Alarmas activadas</h3>
+<div class="status-bar">
+  <div>Sistema Operativo: <span id="status">Funcionando normalmente</span></div>
+  <div id="dateTime"></div>
 </div>
 
 <script>
-  const luces = {
-    luz1: { estado: true, apagadoDesde: null, nombre: 'Luminaria 1' },
-    luz2: { estado: true, apagadoDesde: null, nombre: 'Luminaria 2' },
-    luz3: { estado: true, apagadoDesde: null, nombre: 'Luminaria 3' },
-    luz4: { estado: true, apagadoDesde: null, nombre: 'Luminaria 4' },
+  // Datos de las luces
+  const luces = [
+    { id: 'luz1', nombre: 'Luminaria 1', estado: true, apagadoDesde: null },
+    { id: 'luz2', nombre: 'Luminaria 2', estado: true, apagadoDesde: null },
+    { id: 'luz3', nombre: 'Luminaria 3', estado: true, apagadoDesde: null },
+    { id: 'luz4', nombre: 'Luminaria 4', estado: true, apagadoDesde: null }
+  ];
+
+  // Variables para control de simulación
+  let simulacionInterval = null;
+  let simulacionActiva = false;
+  let intervaloSimulacion = 3000; // 3 segundos por defecto
+  
+  // Elementos DOM
+  const imagenContainer = document.getElementById('imagenContainer');
+  const tituloImagen = document.getElementById('tituloImagen');
+  const fileInputContainer = document.querySelector('.file-input-container');
+  const changeImageBtn = document.getElementById('changeImageBtn');
+  const inputImagen = document.getElementById('inputImagen');
+  const imagenMostrada = document.getElementById('imagenMostrada');
+  const dateTimeElement = document.getElementById('dateTime');
+  const tiempoSimulacionInput = document.getElementById('tiempoSimulacion');
+
+  // Inicializar la interfaz al cargar la página
+  window.onload = function() {
+    inicializarLuces();
+    cargarImagenGuardada();
+    actualizarReloj();
+    setInterval(actualizarReloj, 1000);
+    
+    // Event listeners para imagen
+    inputImagen.addEventListener('change', mostrarImagen);
+    changeImageBtn.addEventListener('click', mostrarSelectorImagen);
   };
 
+  function actualizarReloj() {
+    const ahora = new Date();
+    const opciones = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    };
+    dateTimeElement.textContent = ahora.toLocaleDateString('es-ES', opciones);
+  }
+
+  function inicializarLuces() {
+    const ciudad = document.getElementById('ciudad');
+    const estadosLuces = document.getElementById('estados-luces');
+    
+    ciudad.innerHTML = '';
+    estadosLuces.innerHTML = '';
+    
+    luces.forEach(luz => {
+      // Crear elementos visuales de la ciudad
+      const calle = document.createElement('div');
+      calle.className = 'calle';
+      calle.innerHTML = `
+        <div class="nombre-calle">${luz.nombre}</div>
+        <div class="farol ${luz.estado ? 'encendido' : ''}" 
+             id="${luz.id}" 
+             onclick="toggleLuz('${luz.id}')"></div>
+      `;
+      ciudad.appendChild(calle);
+      
+      // Crear elementos de monitoreo
+      const monLuz = document.createElement('div');
+      monLuz.className = 'mon-luz';
+      monLuz.id = `estado_${luz.id}`;
+      monLuz.innerHTML = `${luz.nombre}: <span class="estado ${luz.estado ? 'estado-on' : 'estado-off'}">${luz.estado ? 'ON' : 'OFF'}</span>`;
+      estadosLuces.appendChild(monLuz);
+    });
+  }
+
   function toggleLuz(id) {
-    const luz = document.getElementById(id);
-    const data = luces[id];
-    data.estado = !data.estado;
-
-    if (data.estado) {
-      luz.classList.add('encendido');
-      data.apagadoDesde = null;
-      logEvento(`Luz ${data.nombre} encendida.`);
+    const luz = luces.find(l => l.id === id);
+    if (!luz) return;
+    
+    const elementoLuz = document.getElementById(id);
+    luz.estado = !luz.estado;
+    
+    if (luz.estado) {
+      elementoLuz.classList.add('encendido');
+      luz.apagadoDesde = null;
+      logEvento(`Luz ${luz.nombre} encendida manualmente.`);
     } else {
-      luz.classList.remove('encendido');
-      data.apagadoDesde = Date.now();
-      logEvento(`Luz ${data.nombre} apagada.`);
+      elementoLuz.classList.remove('encendido');
+      luz.apagadoDesde = Date.now();
+      logEvento(`Luz ${luz.nombre} apagada manualmente.`);
     }
-
+    
     actualizarMonitoreo(id);
   }
 
   function encenderTodas() {
-    for (const id in luces) {
-      const luz = document.getElementById(id);
-      luz.classList.add('encendido');
-      luces[id].estado = true;
-      luces[id].apagadoDesde = null;
-      actualizarMonitoreo(id);
-    }
-    logEvento("Todas las luces fueron encendidas.");
+    luces.forEach(luz => {
+      luz.estado = true;
+      luz.apagadoDesde = null;
+      document.getElementById(luz.id).classList.add('encendido');
+      actualizarMonitoreo(luz.id);
+    });
+    logEvento("Todas las luces fueron encendidas manualmente.");
   }
 
   function apagarTodas() {
-    for (const id in luces) {
-      const luz = document.getElementById(id);
-      luz.classList.remove('encendido');
-      luces[id].estado = false;
-      luces[id].apagadoDesde = Date.now();
-      actualizarMonitoreo(id);
-    }
-    logEvento("Todas las luces fueron apagadas.");
+    luces.forEach(luz => {
+      luz.estado = false;
+      luz.apagadoDesde = Date.now();
+      document.getElementById(luz.id).classList.remove('encendido');
+      actualizarMonitoreo(luz.id);
+    });
+    logEvento("Todas las luces fueron apagadas manualmente.");
   }
 
   function simularMonitoreo() {
-    for (const id in luces) {
-      const encender = Math.random() < 0.5;
-      const luz = document.getElementById(id);
-      luces[id].estado = encender;
+    if (simulacionActiva) return;
+    
+    simulacionActiva = true;
+    document.getElementById('status').textContent = "Simulación en curso";
+    document.getElementById('status').style.color = "#ffc107";
+    logEvento(`Iniciando simulación de monitoreo automático (intervalo: ${intervaloSimulacion/1000}s)...`);
+    
+    simulacionInterval = setInterval(() => {
+      luces.forEach(luz => {
+        if (Math.random() < 0.2) { // 20% de probabilidad de cambio
+          const cambiarA = Math.random() < 0.5; // 50% de encender o apagar
+          if (cambiarA !== luz.estado) {
+            luz.estado = cambiarA;
+            const elementoLuz = document.getElementById(luz.id);
+            
+            if (luz.estado) {
+              elementoLuz.classList.add('encendido');
+              luz.apagadoDesde = null;
+              logEvento(`Simulación: Luz ${luz.nombre} encendida automáticamente.`);
+            } else {
+              elementoLuz.classList.remove('encendido');
+              luz.apagadoDesde = Date.now();
+              logEvento(`Simulación: Luz ${luz.nombre} apagada automáticamente.`);
+            }
+            
+            actualizarMonitoreo(luz.id);
+          }
+        }
+      });
+    }, intervaloSimulacion);
+  }
 
-      if (encender) {
-        luz.classList.add('encendido');
-        luces[id].apagadoDesde = null;
-        logEvento(`Estado: luz ${luces[id].nombre} encendida.`);
-      } else {
-        luz.classList.remove('encendido');
-        luces[id].apagadoDesde = Date.now();
-        logEvento(`Estado: luz ${luces[id].nombre} apagada.`);
-      }
-
-      actualizarMonitoreo(id);
+  function detenerSimulacion() {
+    if (simulacionInterval) {
+      clearInterval(simulacionInterval);
+      simulacionInterval = null;
+      simulacionActiva = false;
+      document.getElementById('status').textContent = "Funcionando normalmente";
+      document.getElementById('status').style.color = "";
+      logEvento("Simulación de monitoreo detenida.");
     }
+  }
+
+  function actualizarTiempoSimulacion() {
+    const nuevoTiempo = parseInt(tiempoSimulacionInput.value) * 1000;
+    if (nuevoTiempo >= 1000 && nuevoTiempo <= 60000) {
+      intervaloSimulacion = nuevoTiempo;
+      logEvento(`Intervalo de simulación actualizado a ${nuevoTiempo/1000} segundos.`);
+      
+      // Si la simulación está activa, reiniciarla con el nuevo intervalo
+      if (simulacionActiva) {
+        detenerSimulacion();
+        simularMonitoreo();
+      }
+    } else {
+      alert("Por favor ingrese un valor entre 1 y 60 segundos.");
+    }
+  }
+
+  function actualizarMonitoreo(id) {
+    const luz = luces.find(l => l.id === id);
+    if (!luz) return;
+    
+    const elemento = document.getElementById(`estado_${id}`);
+    if (elemento) {
+      elemento.innerHTML = `${luz.nombre}: <span class="estado ${luz.estado ? 'estado-on' : 'estado-off'}">${luz.estado ? 'ON' : 'OFF'}</span>`;
+    }
+    
+    verificarAlarmas();
   }
 
   function logEvento(texto) {
@@ -287,51 +670,62 @@
   }
 
   function logAlarma(texto) {
-    const panelAlarma = document.getElementById('alarmas');
+    const panelAlarma = document.getElementById('alarmas-content');
     const p = document.createElement('p');
-    p.textContent = `[${new Date().toLocaleTimeString()}] ${texto}`;
+    p.textContent = `[${new Date().toLocaleTimeString()}] ⚠️ ${texto}`;
     panelAlarma.appendChild(p);
     panelAlarma.scrollTop = panelAlarma.scrollHeight;
   }
 
-  function actualizarMonitoreo(id) {
-    const estado = luces[id].estado ? 'ON' : 'OFF';
-    const texto = `${luces[id].nombre}: <span class="estado ${luces[id].estado ? 'estado-on' : 'estado-off'}">${estado}</span>`;
-    document.getElementById(`estado_${id}`).innerHTML = texto;
-  }
-
   function verificarAlarmas() {
     const ahora = Date.now();
-    for (const id in luces) {
-      const data = luces[id];
-      if (!data.estado && data.apagadoDesde) {
-        const segundos = (ahora - data.apagadoDesde) / 1000;
+    luces.forEach(luz => {
+      if (!luz.estado && luz.apagadoDesde) {
+        const segundos = (ahora - luz.apagadoDesde) / 1000;
         if (segundos > 60) {
-          logAlarma(`⚠️ Alarma: la luz de ${data.nombre} lleva más de 1 minuto apagada.`);
-          data.apagadoDesde = null; // evitar múltiples alertas
+          logAlarma(`Alarma: la luz ${luz.nombre} lleva más de 1 minuto apagada.`);
+          luz.apagadoDesde = null; // Evitar múltiples alertas
         }
       }
-    }
+    });
   }
 
   function mostrarImagen() {
-    const input = document.getElementById('inputImagen');
-    const img = document.getElementById('imagenMostrada');
-    if (input.files && input.files[0]) {
+    if (inputImagen.files && inputImagen.files[0]) {
       const reader = new FileReader();
-      reader.onload = function (e) {
-        img.src = e.target.result;
+      reader.onload = function(e) {
+        imagenMostrada.src = e.target.result;
+        localStorage.setItem('savedImage', e.target.result);
+        
+        // Minimizar el contenedor después de cargar la imagen
+        imagenContainer.classList.add('minimized');
       };
-      reader.readAsDataURL(input.files[0]);
+      reader.readAsDataURL(inputImagen.files[0]);
     }
   }
 
+  function mostrarSelectorImagen() {
+    // Restaurar el contenedor a su estado original
+    imagenContainer.classList.remove('minimized');
+    inputImagen.value = '';
+  }
+
+  function cargarImagenGuardada() {
+    const savedImage = localStorage.getItem('savedImage');
+    if (savedImage) {
+      imagenMostrada.src = savedImage;
+      imagenContainer.classList.add('minimized');
+    }
+  }
+
+  // Verificar alarmas cada 10 segundos
   setInterval(verificarAlarmas, 10000);
 
-  // Inicializar monitoreo visual
-  for (const id in luces) {
-    actualizarMonitoreo(id);
-  }
+  // Simular algunas luces apagadas al inicio
+  setTimeout(() => {
+    toggleLuz('luz2');
+    toggleLuz('luz4');
+  }, 2000);
 </script>
 
 </body>
