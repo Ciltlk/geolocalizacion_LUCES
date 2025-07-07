@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Monitoreo de Luces</title>
+  <title>Sistema de Monitoreo de Luces con Mapa</title>
   <style>
     * {
       box-sizing: border-box;
@@ -46,97 +46,74 @@
       padding: 20px;
     }
 
-    .imagen-container {
+    /* Contenedor del mapa */
+    .mapa-container {
       background: rgba(30, 30, 46, 0.7);
       border-radius: 15px;
-      padding: 25px;
+      padding: 15px;
       margin: 25px auto;
-      max-width: 800px;
-      text-align: center;
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
       border: 1px solid #444;
-      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .imagen-container.minimized {
-      max-width: 500px;
-      padding: 15px;
-    }
-
-    .imagen-container h3 {
-      font-size: 1.6rem;
-      margin-bottom: 15px;
-      color: #a2cfff;
-      transition: all 0.3s ease;
-    }
-
-    .imagen-container.minimized h3 {
-      display: none;
-    }
-
-    .file-input-container {
-      margin: 15px 0;
-      transition: all 0.3s ease;
-    }
-
-    .imagen-container.minimized .file-input-container {
-      display: none;
-    }
-
-    .custom-file-input {
-      display: inline-block;
-      padding: 12px 25px;
-      background: linear-gradient(to right, #0d6efd, #0b5ed7);
-      color: white;
-      border-radius: 50px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .custom-file-input:hover {
-      background: linear-gradient(to right, #0b5ed7, #0a4dbd);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-    }
-
-    #inputImagen {
-      display: none;
-    }
-
-    #imagenMostrada {
-      max-width: 100%;
+    /* Para la opción de imagen estática */
+    .mapa-imagen-container {
+      position: relative;
+      width: 100%;
+      background-color: #2a2a3a;
       border-radius: 10px;
-      margin: 20px auto 10px;
-      display: block;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-      border: 1px solid #555;
-      transition: all 0.3s ease;
+      overflow: hidden;
+      text-align: center;
     }
 
-    .change-image-btn {
-      display: none;
-      background: linear-gradient(to right, #0d6efd, #0b5ed7);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 50px;
-      margin-top: 10px;
+    #mapaImagen {
+      max-width: 100%;
+      height: auto;
+      background-color: #1a1a2e;
+    }
+
+    /* Contenedor de luces debajo del mapa */
+    .luces-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(30, 30, 46, 0.5);
+      border-radius: 10px;
+    }
+
+    .luz-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       cursor: pointer;
-      font-weight: 500;
+    }
+
+    .luz-indicador {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #444;
+      margin-bottom: 5px;
       transition: all 0.3s ease;
+      border: 2px solid rgba(255, 255, 255, 0.7);
     }
 
-    .change-image-btn:hover {
-      background: linear-gradient(to right, #0b5ed7, #0a4dbd);
-      transform: translateY(-2px);
+    .luz-indicador.encendido {
+      background: radial-gradient(circle, #ffff00, #ffd700);
+      box-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
     }
 
-    .imagen-container.minimized .change-image-btn {
-      display: inline-block;
+    .luz-nombre {
+      font-size: 0.9rem;
+      text-align: center;
     }
 
+    /* Botones de control */
     .botones {
       display: flex;
       justify-content: center;
@@ -164,55 +141,7 @@
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
     }
 
-    .ciudad {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 25px;
-      padding: 25px;
-      max-width: 1200px;
-      margin: 0 auto 30px;
-    }
-
-    .calle {
-      background: rgba(34, 34, 50, 0.8);
-      border-radius: 15px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-      border: 1px solid #444;
-      transition: all 0.3s ease;
-    }
-
-    .calle:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-      background: rgba(40, 40, 60, 0.9);
-    }
-
-    .nombre-calle {
-      margin-bottom: 15px;
-      font-weight: bold;
-      font-size: 1.3rem;
-      color: #a2cfff;
-    }
-
-    .farol {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto;
-      border-radius: 50%;
-      background-color: #444;
-      cursor: pointer;
-      transition: all 0.4s ease;
-      position: relative;
-      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.5);
-    }
-
-    .encendido {
-      background: radial-gradient(circle, #ffff00, #ffd700);
-      box-shadow: 0 0 30px rgba(255, 255, 0, 0.7);
-    }
-
+    /* Monitoreo y registro */
     .contenedor-columnas {
       display: flex;
       flex-wrap: wrap;
@@ -375,10 +304,6 @@
     }
 
     @media (max-width: 768px) {
-      .ciudad {
-        grid-template-columns: 1fr 1fr;
-      }
-      
       header h1 {
         font-size: 2rem;
       }
@@ -390,10 +315,6 @@
     }
 
     @media (max-width: 480px) {
-      .ciudad {
-        grid-template-columns: 1fr;
-      }
-      
       .botones {
         flex-direction: column;
         align-items: center;
@@ -402,6 +323,14 @@
       .botones button {
         width: 100%;
         max-width: 300px;
+      }
+
+      .contenedor-columnas {
+        flex-direction: column;
+      }
+
+      .monitoreo, .registro {
+        max-width: 100%;
       }
     }
   </style>
@@ -413,15 +342,15 @@
 </header>
 
 <div class="panel-container">
-  <!-- Contenedor de imagen -->
-  <div class="imagen-container" id="imagenContainer">
-    <h3 id="tituloImagen">🖼️ CARGAR IMAGEN DEL SISTEMA</h3>
-    <div class="file-input-container">
-      <label for="inputImagen" class="custom-file-input">Seleccionar imagen</label>
-      <input type="file" id="inputImagen" accept="image/*">
+  <!-- Contenedor del mapa -->
+  <div class="mapa-container">
+    <!-- Mapa con imagen estática -->
+    <div id="mapaImagenContainer" class="mapa-imagen-container">
+      <img id="mapaImagen" src="mapa.png" alt="Mapa del sistema de luces">
     </div>
-    <img id="imagenMostrada" src="" alt="Imagen del sistema de luces">
-    <button class="change-image-btn" id="changeImageBtn">Cambiar Imagen</button>
+    
+    <!-- Contenedor de luces debajo del mapa -->
+    <div class="luces-container" id="lucesContainer"></div>
   </div>
 
   <!-- Botones de control -->
@@ -437,11 +366,6 @@
     <label for="tiempoSimulacion">Intervalo de simulación (segundos):</label>
     <input type="number" id="tiempoSimulacion" min="1" max="60" value="3">
     <button onclick="actualizarTiempoSimulacion()">Actualizar</button>
-  </div>
-
-  <!-- Visualización de faroles -->
-  <div class="ciudad" id="ciudad">
-    <!-- Las luces se generarán dinámicamente con JavaScript -->
   </div>
 
   <!-- Monitoreo y registro -->
@@ -472,7 +396,16 @@
 </div>
 
 <script>
-  // Datos de las luces
+  /****************************************************************
+  * SECCIÓN PARA CONFIGURAR LAS LUCES - MODIFICAR AQUÍ
+  * 
+  * Para cada luz debes especificar:
+  * - id: Identificador único (ej: 'luz1')
+  * - nombre: Nombre descriptivo (ej: 'Luminaria Principal')
+  * - estado: true (encendida) o false (apagada)
+  * 
+  * Ejemplo de configuración para 4 luces:
+  ****************************************************************/
   const luces = [
     { id: 'luz1', nombre: 'Luminaria 1', estado: true, apagadoDesde: null },
     { id: 'luz2', nombre: 'Luminaria 2', estado: true, apagadoDesde: null },
@@ -484,28 +417,40 @@
   let simulacionInterval = null;
   let simulacionActiva = false;
   let intervaloSimulacion = 3000; // 3 segundos por defecto
-  
+
   // Elementos DOM
-  const imagenContainer = document.getElementById('imagenContainer');
-  const tituloImagen = document.getElementById('tituloImagen');
-  const fileInputContainer = document.querySelector('.file-input-container');
-  const changeImageBtn = document.getElementById('changeImageBtn');
-  const inputImagen = document.getElementById('inputImagen');
-  const imagenMostrada = document.getElementById('imagenMostrada');
   const dateTimeElement = document.getElementById('dateTime');
   const tiempoSimulacionInput = document.getElementById('tiempoSimulacion');
+  const lucesContainer = document.getElementById('lucesContainer');
 
   // Inicializar la interfaz al cargar la página
   window.onload = function() {
     inicializarLuces();
-    cargarImagenGuardada();
     actualizarReloj();
     setInterval(actualizarReloj, 1000);
-    
-    // Event listeners para imagen
-    inputImagen.addEventListener('change', mostrarImagen);
-    changeImageBtn.addEventListener('click', mostrarSelectorImagen);
   };
+
+  function crearIndicadoresLuces() {
+    lucesContainer.innerHTML = '';
+    
+    luces.forEach(luz => {
+      const luzItem = document.createElement('div');
+      luzItem.className = 'luz-item';
+      luzItem.onclick = function() { toggleLuz(luz.id); };
+      
+      const indicador = document.createElement('div');
+      indicador.className = `luz-indicador ${luz.estado ? 'encendido' : ''}`;
+      indicador.id = `indicador_${luz.id}`;
+      
+      const nombre = document.createElement('div');
+      nombre.className = 'luz-nombre';
+      nombre.textContent = luz.nombre;
+      
+      luzItem.appendChild(indicador);
+      luzItem.appendChild(nombre);
+      lucesContainer.appendChild(luzItem);
+    });
+  }
 
   function actualizarReloj() {
     const ahora = new Date();
@@ -522,46 +467,40 @@
   }
 
   function inicializarLuces() {
-    const ciudad = document.getElementById('ciudad');
     const estadosLuces = document.getElementById('estados-luces');
-    
-    ciudad.innerHTML = '';
     estadosLuces.innerHTML = '';
     
+    // Crear elementos de monitoreo
     luces.forEach(luz => {
-      // Crear elementos visuales de la ciudad
-      const calle = document.createElement('div');
-      calle.className = 'calle';
-      calle.innerHTML = `
-        <div class="nombre-calle">${luz.nombre}</div>
-        <div class="farol ${luz.estado ? 'encendido' : ''}" 
-             id="${luz.id}" 
-             onclick="toggleLuz('${luz.id}')"></div>
-      `;
-      ciudad.appendChild(calle);
-      
-      // Crear elementos de monitoreo
       const monLuz = document.createElement('div');
       monLuz.className = 'mon-luz';
       monLuz.id = `estado_${luz.id}`;
       monLuz.innerHTML = `${luz.nombre}: <span class="estado ${luz.estado ? 'estado-on' : 'estado-off'}">${luz.estado ? 'ON' : 'OFF'}</span>`;
       estadosLuces.appendChild(monLuz);
     });
+    
+    // Crear indicadores visuales
+    crearIndicadoresLuces();
   }
 
   function toggleLuz(id) {
     const luz = luces.find(l => l.id === id);
     if (!luz) return;
     
-    const elementoLuz = document.getElementById(id);
     luz.estado = !luz.estado;
     
     if (luz.estado) {
-      elementoLuz.classList.add('encendido');
+      // Actualizar indicador visual
+      const indicador = document.getElementById(`indicador_${id}`);
+      if (indicador) indicador.classList.add('encendido');
+      
       luz.apagadoDesde = null;
       logEvento(`Luz ${luz.nombre} encendida manualmente.`);
     } else {
-      elementoLuz.classList.remove('encendido');
+      // Actualizar indicador visual
+      const indicador = document.getElementById(`indicador_${id}`);
+      if (indicador) indicador.classList.remove('encendido');
+      
       luz.apagadoDesde = Date.now();
       logEvento(`Luz ${luz.nombre} apagada manualmente.`);
     }
@@ -573,7 +512,11 @@
     luces.forEach(luz => {
       luz.estado = true;
       luz.apagadoDesde = null;
-      document.getElementById(luz.id).classList.add('encendido');
+      
+      // Actualizar indicador visual
+      const indicador = document.getElementById(`indicador_${luz.id}`);
+      if (indicador) indicador.classList.add('encendido');
+      
       actualizarMonitoreo(luz.id);
     });
     logEvento("Todas las luces fueron encendidas manualmente.");
@@ -583,7 +526,11 @@
     luces.forEach(luz => {
       luz.estado = false;
       luz.apagadoDesde = Date.now();
-      document.getElementById(luz.id).classList.remove('encendido');
+      
+      // Actualizar indicador visual
+      const indicador = document.getElementById(`indicador_${luz.id}`);
+      if (indicador) indicador.classList.remove('encendido');
+      
       actualizarMonitoreo(luz.id);
     });
     logEvento("Todas las luces fueron apagadas manualmente.");
@@ -603,14 +550,19 @@
           const cambiarA = Math.random() < 0.5; // 50% de encender o apagar
           if (cambiarA !== luz.estado) {
             luz.estado = cambiarA;
-            const elementoLuz = document.getElementById(luz.id);
             
             if (luz.estado) {
-              elementoLuz.classList.add('encendido');
+              // Actualizar indicador visual
+              const indicador = document.getElementById(`indicador_${luz.id}`);
+              if (indicador) indicador.classList.add('encendido');
+              
               luz.apagadoDesde = null;
               logEvento(`Simulación: Luz ${luz.nombre} encendida automáticamente.`);
             } else {
-              elementoLuz.classList.remove('encendido');
+              // Actualizar indicador visual
+              const indicador = document.getElementById(`indicador_${luz.id}`);
+              if (indicador) indicador.classList.remove('encendido');
+              
               luz.apagadoDesde = Date.now();
               logEvento(`Simulación: Luz ${luz.nombre} apagada automáticamente.`);
             }
@@ -688,34 +640,6 @@
         }
       }
     });
-  }
-
-  function mostrarImagen() {
-    if (inputImagen.files && inputImagen.files[0]) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        imagenMostrada.src = e.target.result;
-        localStorage.setItem('savedImage', e.target.result);
-        
-        // Minimizar el contenedor después de cargar la imagen
-        imagenContainer.classList.add('minimized');
-      };
-      reader.readAsDataURL(inputImagen.files[0]);
-    }
-  }
-
-  function mostrarSelectorImagen() {
-    // Restaurar el contenedor a su estado original
-    imagenContainer.classList.remove('minimized');
-    inputImagen.value = '';
-  }
-
-  function cargarImagenGuardada() {
-    const savedImage = localStorage.getItem('savedImage');
-    if (savedImage) {
-      imagenMostrada.src = savedImage;
-      imagenContainer.classList.add('minimized');
-    }
   }
 
   // Verificar alarmas cada 10 segundos
